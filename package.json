@@ -1,0 +1,35 @@
+{
+  "name": "whatsapp-automation-free-demo",
+  "version": "1.0.0",
+  "description": "Fixed WhatsApp Web automation project with QR status handling, live Google Sheet CSV FAQ replies, local logs, and dashboard.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "setup:windows": "set PUPPETEER_SKIP_DOWNLOAD=true&& set PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true&& npm install --ignore-scripts",
+    "clean:windows": "if exist node_modules rmdir /s /q node_modules && if exist package-lock.json del /f /q package-lock.json"
+  },
+  "keywords": [
+    "whatsapp",
+    "automation",
+    "faq-bot",
+    "auto-reply",
+    "internship-project",
+    "whatsapp-web-js"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.26.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WhatsApp Automation Dashboard</title>
+  <style>
+    :root {
+      --bg: #f6f8f7;
+      --card: #ffffff;
+      --text: #17211d;
+      --muted: #66736d;
+      --green: #128c7e;
+      --green-dark: #075e54;
+      --border: #dce5e0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      color: white;
+      padding: 28px 20px;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    h1 { margin: 0 0 6px; font-size: 28px; }
+    p { line-height: 1.5; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e8f7f2;
+      color: var(--green-dark);
+      font-weight: bold;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+    .muted { color: var(--muted); }
+    img.qr { max-width: 240px; width: 100%; border: 1px solid var(--border); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border-bottom: 1px solid var(--border); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+    code { background: #eef5f2; padding: 2px 5px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>WhatsApp Automation Dashboard</h1>
+      <p>Free internship demo project: auto-reply system, FAQ-based bot, and local conversation logs.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="grid">
+      <div class="card">
+        <span class="badge" id="state">Loading</span>
+        <h2>Bot Status</h2>
+        <p id="message" class="muted">Checking status...</p>
+        <p class="muted">Tip: scan the QR from WhatsApp mobile app → Linked devices.</p>
+        <p id="errorBox" class="muted"></p>
+        <div id="qrBox"></div>
+      </div>
+
+      <div class="card">
+        <h2>Project Features</h2>
+        <p>✅ Auto-reply for common messages</p>
+        <p>✅ FAQ keyword matching</p>
+        <p>✅ Local JSONL + CSV conversation logs</p>
+        <p>✅ Opt-out support with <code>stop</code></p>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:16px;">
+      <h2>FAQ Data</h2>
+      <p class="muted">FAQ data can come from <code>config/faqs.json</code> or live Google Sheet CSV based on your <code>.env</code> settings.</p>
+      <p id="faqSource" class="muted">Checking FAQ source...</p>
+      <div id="faqs"></div>
+    </section>
+
+    <section class="card" style="margin-top:16px; margin-bottom:24px;">
+      <h2>Recent Conversation Logs</h2>
+      <p class="muted">Logs are saved inside the <code>logs/</code> folder.</p>
+      <div id="logs"></div>
+    </section>
+  </main>
+
+  <script>
+    async function getJson(url) {
+      const res = await fetch(url);
+      return res.json();
+    }
+
+    function escapeHtml(text) {
+      return String(text || '').replace(/[&<>"']/g, function(ch) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[ch];
+      });
+    }
+
+    async function renderStatus() {
+      const status = await getJson('/api/status');
+      document.getElementById('state').textContent = status.state || 'unknown';
+      document.getElementById('message').textContent = status.message || '';
+      const qrBox = document.getElementById('qrBox');
+      const errorBox = document.getElementById('errorBox');
+      errorBox.textContent = status.lastError ? `Error: ${status.lastError}` : '';
+      if (status.qr) {
+        qrBox.innerHTML = `<img class="qr" src="${status.qr}" alt="WhatsApp login QR code" />`;
+      } else {
+        qrBox.innerHTML = '';
+      }
+    }
+
+    async function renderFaqs() {
+      const [faqs, source] = await Promise.all([getJson('/api/faqs'), getJson('/api/faq-source')]);
+      document.getElementById('faqSource').textContent = `Source: ${source.source || 'unknown'} | Rows: ${source.count || 0}${source.error ? ' | Error: ' + source.error : ''}`;
+      document.getElementById('faqs').innerHTML = `
+        <table>
+          <thead><tr><th>ID</th><th>Question</th><th>Keywords</th></tr></thead>
+          <tbody>${faqs.map(f => `
+            <tr>
+              <td>${escapeHtml(f.id)}</td>
+              <td>${escapeHtml(f.question)}</td>
+              <td>${escapeHtml((f.keywords || []).join(', '))}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    async function renderLogs() {
+      const logs = await getJson('/api/logs?limit=25');
+      if (!logs.length) {
+        document.getElementById('logs').innerHTML = '<p class="muted">No logs yet. Send a message to the connected WhatsApp number.</p>';
+        return;
+      }
+      document.getElementById('logs').innerHTML = `
+        <table>
+          <thead><tr><th>Time</th><th>Direction</th><th>Contact</th><th>Message / Reply</th><th>FAQ</th><th>Score</th></tr></thead>
+          <tbody>${logs.map(l => `
+            <tr>
+              <td>${escapeHtml(l.timestamp)}</td>
+              <td>${escapeHtml(l.direction)}</td>
+              <td>${escapeHtml(l.contactName || l.contactId)}</td>
+              <td>${escapeHtml(l.message || l.reply)}</td>
+              <td>${escapeHtml(l.matchedFaq)}</td>
+              <td>${escapeHtml(l.confidence)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    async function refresh() {
+      await Promise.all([renderStatus(), renderFaqs(), renderLogs()]);
+    }
+
+    refresh();
+    setInterval(refresh, 5000);
+  </script>
+</body>
+</html>

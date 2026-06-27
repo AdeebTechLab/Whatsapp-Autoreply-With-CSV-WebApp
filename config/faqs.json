@@ -1,0 +1,50 @@
+[
+  {
+    "id": "greeting",
+    "question": "Greeting message",
+    "keywords": ["hi", "hello", "hey", "salam", "assalam", "aoa", "start"],
+    "answer": "Hello! Thanks for contacting us. Type *menu* to see what I can help you with."
+  },
+  {
+    "id": "services",
+    "question": "What services do you offer?",
+    "keywords": ["service", "services", "what do you offer", "work", "help"],
+    "answer": "We offer WhatsApp auto-replies, FAQ bot setup, customer support automation, and conversation logging for small business workflows."
+  },
+  {
+    "id": "pricing",
+    "question": "What is your pricing?",
+    "keywords": ["price", "pricing", "cost", "charges", "fee", "package", "packages"],
+    "answer": "Pricing depends on the project scope. For this internship demo, the automation project is fully free and runs locally on your computer."
+  },
+  {
+    "id": "hours",
+    "question": "What are your working hours?",
+    "keywords": ["hours", "timing", "time", "open", "close", "available", "working hours"],
+    "answer": "Our usual support hours are 9:00 AM to 6:00 PM, Monday to Saturday."
+  },
+  {
+    "id": "location",
+    "question": "Where are you located?",
+    "keywords": ["location", "address", "where", "office", "city"],
+    "answer": "This is a demo bot, so no physical office is connected. You can replace this answer with your real business address."
+  },
+  {
+    "id": "support",
+    "question": "How can I talk to a human?",
+    "keywords": ["support", "human", "agent", "representative", "person", "call me", "contact team"],
+    "answer": "A team member will contact you soon. Please share your name and main question so we can help faster."
+  },
+  {
+    "id": "contact",
+    "question": "How can I contact you?",
+    "keywords": ["contact", "email", "phone", "number", "whatsapp", "reach"],
+    "answer": "You can contact us on this WhatsApp chat. For email or phone details, replace this demo answer with your real contact information."
+  },
+  {
+    "id": "thanks",
+    "question": "Thank you message",
+    "keywords": ["thanks", "thank you", "jazakallah", "shukriya", "ok", "okay"],
+    "answer": "You're welcome! Let me know if you need anything else."
+  }
+]

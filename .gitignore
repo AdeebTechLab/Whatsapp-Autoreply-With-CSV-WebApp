@@ -1,0 +1,8 @@
+node_modules/
+.env
+.wwebjs_auth/
+.wwebjs_cache/
+logs/*.jsonl
+logs/*.csv
+data/*.json
+data/whatsapp-session/
